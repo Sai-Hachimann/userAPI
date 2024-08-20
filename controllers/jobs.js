@@ -33,6 +33,12 @@ module.exports.updateJob = async (req, res, next) => {
     params: { id: jobId },
   } = req;
 
+  /*the above code is similar to writing 
+  const {company,position} = req.body; or const company = req.body.company
+  const {userId} = req.user; or const userId = req.user.userID
+  const {id: jobId} = req.params or const jobId = req.params.id
+  */
+
   console.log(body);
   if (company === '' || position === '') {
     throw new BadRequestError('fields cannot be empty');
@@ -48,5 +54,12 @@ module.exports.updateJob = async (req, res, next) => {
 };
 
 module.exports.deleteJob = async (req, res, next) => {
-  res.send('delete jobs');
+  const userId = req.user.userId;
+  const jobId = req.params.id;
+  console.log(jobId, userId);
+  const job = await Job.findByIdAndDelete({ _id: jobId, createdBy: userId });
+  if (!job) {
+    throw new NotFoundError(`no job with id ${jobId}`);
+  }
+  res.status(StatusCodes.OK).send();
 };
